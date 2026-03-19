@@ -1,128 +1,179 @@
 <%- include('partials/head') %>
 <%- include('partials/nav') %>
 
-<main class="max-w-6xl mx-auto px-4 py-6 flex-1">
-  <h1 class="text-xl md:text-2xl font-bold text-zinc-100 mb-6"><%= title %></h1>
+<main class="mx-auto px-6 lg:px-12 py-8 flex-1">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-2xl lg:text-3xl font-bold text-zinc-100"><%= title %></h1>
+    <span class="text-base text-zinc-500"><%= sortedKeys.length %> série<%= sortedKeys.length !== 1 ? 's' : '' %></span>
+  </div>
 
-  <input type="text" id="search-serie" placeholder="Rechercher une série..."
-         class="bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-amber-600 w-full sm:w-64 mb-6">
+  <div class="flex flex-col sm:flex-row gap-4 mb-8">
+    <input type="text" id="search-serie" placeholder="Rechercher une série..."
+           class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-base text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-amber-600 w-full sm:w-80">
+    <button id="btn-batch-covers" class="px-5 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-base transition-colors whitespace-nowrap">
+      Chercher toutes les couvertures
+    </button>
+    <span id="batch-cover-status" class="text-sm text-zinc-500 self-center hidden"></span>
+  </div>
 
   <% if (sortedKeys.length === 0) { %>
-    <p class="text-zinc-500 text-center py-12">Aucune série.</p>
+    <p class="text-zinc-500 text-center py-16 text-lg">Aucune série.</p>
   <% } else { %>
-    <div class="space-y-4">
+    <!-- Series cards grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5 mb-8" id="series-grid">
       <% for (const serie of sortedKeys) { %>
         <% const tomes = grouped[serie]; %>
         <% const owned = tomes.filter(t => t.status === 'owned' || t.status === 'owned_no_hs').length; %>
         <% const total = tomes.length; %>
         <% const pct = total > 0 ? Math.round((owned / total) * 100) : 0; %>
         <% const note = serieNotes[serie] || ''; %>
-        <details class="serie-block bg-zinc-900/50 border border-zinc-800 rounded-lg" data-serie="<%= serie.toLowerCase() %>">
-          <summary class="px-3 md:px-4 py-3 cursor-pointer hover:bg-zinc-800/50 rounded-lg transition-colors">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 md:gap-3 min-w-0">
-                <span class="font-medium text-zinc-100 text-sm md:text-base truncate"><%= serie %></span>
-                <span class="text-xs text-zinc-500 flex-shrink-0"><%= owned %>/<%= total %></span>
-                <% if (note) { %>
-                  <span class="text-xs text-zinc-600 hidden md:inline" title="<%= note %>">&#128221;</span>
-                <% } %>
-              </div>
-              <div class="flex items-center gap-2 md:gap-3 flex-shrink-0 ml-2">
-                <div class="w-16 md:w-32 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                  <div class="h-full rounded-full transition-all
-                    <%= pct === 100 ? 'bg-emerald-500' : pct > 50 ? 'bg-amber-500' : 'bg-red-500' %>"
-                    style="width: <%= pct %>%"></div>
+        <% const sortedTomes = tomes.slice().sort((a, b) => (a.numero || 0) - (b.numero || 0)); %>
+        <% const tome1 = sortedTomes.find(t => t.cover_url) || sortedTomes[0]; %>
+        <% const coverUrl = tome1 ? tome1.cover_url : null; %>
+
+        <div class="serie-card bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-600 transition-colors cursor-pointer"
+             data-serie="<%= serie.toLowerCase() %>" data-serie-name="<%= serie %>">
+          <div class="flex gap-4 p-4">
+            <div class="flex-shrink-0">
+              <% if (coverUrl) { %>
+                <img src="<%= coverUrl %>" alt="" class="w-20 h-28 lg:w-24 lg:h-32 object-cover rounded-lg shadow" loading="lazy">
+              <% } else { %>
+                <div class="w-20 h-28 lg:w-24 lg:h-32 bg-zinc-800 rounded-lg flex items-center justify-center">
+                  <svg class="w-10 h-10 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                 </div>
-                <span class="text-xs text-zinc-500 w-8 text-right"><%= pct %>%</span>
-              </div>
-            </div>
-          </summary>
-          <div class="px-3 md:px-4 pb-3">
-
-            <!-- Serie note -->
-            <div class="mb-3 mt-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs text-zinc-500">Note sur la série</span>
-              </div>
-              <textarea class="serie-note-input w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-amber-600 resize-none"
-                        rows="2" placeholder="Notes sur cette série..." data-serie="<%= serie %>"><%= note %></textarea>
-            </div>
-
-            <!-- Desktop table -->
-            <table class="hidden md:table w-full text-sm">
-              <% for (const bd of tomes) { %>
-                <tr class="border-t border-zinc-800/50">
-                  <td class="py-2 pr-3 w-10">
-                    <% if (bd.cover_url) { %>
-                      <img src="<%= bd.cover_url %>" alt="" class="w-8 h-11 object-cover rounded" loading="lazy">
-                    <% } else { %>
-                      <div class="w-8 h-11 bg-zinc-800 rounded flex items-center justify-center">
-                        <svg class="w-4 h-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                      </div>
-                    <% } %>
-                  </td>
-                  <td class="py-2 pr-4 w-12 text-center text-zinc-500"><%= bd.numero != null ? bd.numero : '-' %></td>
-                  <td class="py-2 pr-4 text-zinc-300"><%= bd.titre %></td>
-                  <td class="py-2 pr-4">
-                    <select class="status-select bg-transparent border border-zinc-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-amber-600
-                      <%= bd.status === 'owned' || bd.status === 'owned_no_hs' ? 'text-emerald-400' : '' %>
-                      <%= bd.status === 'missing' ? 'text-red-400' : '' %>
-                      <%= bd.status === 'in_progress' ? 'text-amber-400' : '' %>
-                      <%= bd.status === 'not_owned' ? 'text-zinc-500' : '' %>"
-                      data-id="<%= bd.id %>">
-                      <% for (const s of statuses) { %>
-                        <option value="<%= s.value %>" <%= bd.status === s.value ? 'selected' : '' %>><%= s.label %></option>
-                      <% } %>
-                    </select>
-                  </td>
-                  <td class="py-2 pr-4 text-zinc-500 text-xs"><%= bd.commentaire || '' %></td>
-                  <td class="py-2 text-right">
-                    <% if (bd.web_tracking) { %>
-                      <a href="<%= bd.web_tracking %>" target="_blank" rel="noopener" class="text-amber-500 hover:text-amber-400 text-xs mr-2">&#8599;</a>
-                    <% } %>
-                    <a href="/edit/<%= bd.id %>" class="text-zinc-500 hover:text-zinc-300 text-xs">Modifier</a>
-                  </td>
-                </tr>
               <% } %>
-            </table>
-
-            <!-- Mobile list -->
-            <div class="md:hidden space-y-2">
-              <% for (const bd of tomes) { %>
-                <div class="flex gap-2.5 py-2 border-t border-zinc-800/50">
-                  <div class="flex-shrink-0">
-                    <% if (bd.cover_url) { %>
-                      <img src="<%= bd.cover_url %>" alt="" class="w-10 h-14 object-cover rounded" loading="lazy">
-                    <% } else { %>
-                      <div class="w-10 h-14 bg-zinc-800 rounded flex items-center justify-center">
-                        <svg class="w-4 h-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                      </div>
-                    <% } %>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start justify-between">
-                      <div class="min-w-0">
-                        <p class="text-sm text-zinc-200 truncate"><%= bd.titre %></p>
-                        <p class="text-xs text-zinc-500"><%= bd.numero != null ? '#' + bd.numero : '' %></p>
-                      </div>
-                      <a href="/edit/<%= bd.id %>" class="text-zinc-500 text-xs flex-shrink-0 ml-2">Modifier</a>
-                    </div>
-                    <select class="status-select mt-1 bg-transparent border border-zinc-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-amber-600
-                      <%= bd.status === 'owned' || bd.status === 'owned_no_hs' ? 'text-emerald-400' : '' %>
-                      <%= bd.status === 'missing' ? 'text-red-400' : '' %>
-                      <%= bd.status === 'in_progress' ? 'text-amber-400' : '' %>
-                      <%= bd.status === 'not_owned' ? 'text-zinc-500' : '' %>"
-                      data-id="<%= bd.id %>">
-                      <% for (const s of statuses) { %>
-                        <option value="<%= s.value %>" <%= bd.status === s.value ? 'selected' : '' %>><%= s.label %></option>
-                      <% } %>
-                    </select>
-                  </div>
-                </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-zinc-100 text-base truncate"><%= serie %></h3>
+              <p class="text-sm text-zinc-500 mt-1"><%= owned %>/<%= total %> tome<%= total !== 1 ? 's' : '' %></p>
+              <div class="mt-3 w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all
+                  <%= pct === 100 ? 'bg-emerald-500' : pct > 50 ? 'bg-amber-500' : 'bg-red-500' %>"
+                  style="width: <%= pct %>%"></div>
+              </div>
+              <p class="text-sm mt-1.5 font-medium <%= pct === 100 ? 'text-emerald-500' : pct > 50 ? 'text-amber-500' : 'text-red-500' %>"><%= pct %>%</p>
+              <% if (note) { %>
+                <p class="text-sm text-zinc-600 mt-1 truncate" title="<%= note %>"><%= note %></p>
+              <% } %>
+              <% const missingTomes = sortedTomes.filter(t => t.status === 'missing' || t.status === 'not_owned'); %>
+              <% if (missingTomes.length > 0 && missingTomes.length <= 5) { %>
+                <p class="text-sm text-red-400/70 mt-1">Manque: <%= missingTomes.map(t => '#' + (t.numero || '?')).join(', ') %></p>
+              <% } else if (missingTomes.length > 5) { %>
+                <p class="text-sm text-red-400/70 mt-1"><%= missingTomes.length %> tomes manquants</p>
               <% } %>
             </div>
           </div>
-        </details>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Serie detail panel -->
+    <div id="serie-detail" class="hidden">
+      <div class="flex items-center gap-4 mb-6">
+        <button id="serie-detail-back" class="text-zinc-500 hover:text-zinc-300 transition-colors p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <h2 id="serie-detail-title" class="text-xl lg:text-2xl font-bold text-zinc-100"></h2>
+      </div>
+
+      <% for (const serie of sortedKeys) { %>
+        <% const tomes = grouped[serie]; %>
+        <% const sortedTomes = tomes.slice().sort((a, b) => (a.numero || 0) - (b.numero || 0)); %>
+        <% const note = serieNotes[serie] || ''; %>
+        <div class="serie-detail-content hidden" data-serie-name="<%= serie %>">
+          <div class="mb-6">
+            <textarea class="serie-note-input w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-zinc-300 focus:outline-none focus:border-amber-600 resize-none"
+                      rows="2" placeholder="Notes sur cette série..." data-serie="<%= serie %>"><%= note %></textarea>
+          </div>
+
+          <!-- Desktop table -->
+          <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-base">
+              <thead>
+                <tr class="text-left text-zinc-500 border-b border-zinc-800">
+                  <th class="pb-3 pr-4 w-16"></th>
+                  <th class="pb-3 pr-5 w-20 text-center text-sm">N°</th>
+                  <th class="pb-3 pr-5 text-sm">Titre</th>
+                  <th class="pb-3 pr-5 text-sm">Statut</th>
+                  <th class="pb-3 pr-5 text-sm">Commentaire</th>
+                  <th class="pb-3 w-28 text-sm"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% for (const bd of sortedTomes) { %>
+                  <tr class="border-t border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                    <td class="py-3 pr-4">
+                      <% if (bd.cover_url) { %>
+                        <img src="<%= bd.cover_url %>" alt="" class="w-12 h-16 object-cover rounded-lg" loading="lazy">
+                      <% } else { %>
+                        <div class="w-12 h-16 bg-zinc-800 rounded-lg flex items-center justify-center">
+                          <svg class="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        </div>
+                      <% } %>
+                    </td>
+                    <td class="py-3 pr-5 text-center text-zinc-400"><%= bd.numero != null ? bd.numero : '-' %></td>
+                    <td class="py-3 pr-5 text-zinc-300"><%= bd.titre %></td>
+                    <td class="py-3 pr-5">
+                      <select class="status-select bg-transparent border border-zinc-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-amber-600
+                        <%= bd.status === 'owned' || bd.status === 'owned_no_hs' ? 'text-emerald-400' : '' %>
+                        <%= bd.status === 'missing' ? 'text-red-400' : '' %>
+                        <%= bd.status === 'in_progress' ? 'text-amber-400' : '' %>
+                        <%= bd.status === 'not_owned' ? 'text-zinc-500' : '' %>"
+                        data-id="<%= bd.id %>">
+                        <% for (const s of statuses) { %>
+                          <option value="<%= s.value %>" <%= bd.status === s.value ? 'selected' : '' %>><%= s.label %></option>
+                        <% } %>
+                      </select>
+                    </td>
+                    <td class="py-3 pr-5 text-zinc-500 text-sm max-w-xs truncate"><%= bd.commentaire || '' %></td>
+                    <td class="py-3 text-right whitespace-nowrap">
+                      <% if (bd.web_tracking) { %>
+                        <a href="<%= bd.web_tracking %>" target="_blank" rel="noopener" class="text-amber-500 hover:text-amber-400 text-sm mr-3">&#8599;</a>
+                      <% } %>
+                      <a href="/edit/<%= bd.id %>" class="text-zinc-500 hover:text-zinc-300 text-sm">Modifier</a>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile list -->
+          <div class="md:hidden space-y-3">
+            <% for (const bd of sortedTomes) { %>
+              <div class="flex gap-3 py-3 border-t border-zinc-800/50">
+                <div class="flex-shrink-0">
+                  <% if (bd.cover_url) { %>
+                    <img src="<%= bd.cover_url %>" alt="" class="w-14 h-20 object-cover rounded-lg" loading="lazy">
+                  <% } else { %>
+                    <div class="w-14 h-20 bg-zinc-800 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between">
+                    <div class="min-w-0">
+                      <p class="text-base text-zinc-200 truncate"><%= bd.titre %></p>
+                      <p class="text-sm text-zinc-500"><%= bd.numero != null ? '#' + bd.numero : '' %></p>
+                    </div>
+                    <a href="/edit/<%= bd.id %>" class="text-zinc-500 text-sm flex-shrink-0 ml-2">Modifier</a>
+                  </div>
+                  <select class="status-select mt-2 bg-transparent border border-zinc-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-amber-600
+                    <%= bd.status === 'owned' || bd.status === 'owned_no_hs' ? 'text-emerald-400' : '' %>
+                    <%= bd.status === 'missing' ? 'text-red-400' : '' %>
+                    <%= bd.status === 'in_progress' ? 'text-amber-400' : '' %>
+                    <%= bd.status === 'not_owned' ? 'text-zinc-500' : '' %>"
+                    data-id="<%= bd.id %>">
+                    <% for (const s of statuses) { %>
+                      <option value="<%= s.value %>" <%= bd.status === s.value ? 'selected' : '' %>><%= s.label %></option>
+                    <% } %>
+                  </select>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
       <% } %>
     </div>
   <% } %>

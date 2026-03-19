@@ -1,25 +1,25 @@
 <%- include('partials/head') %>
 <%- include('partials/nav') %>
 
-<main class="max-w-2xl mx-auto px-4 py-6 flex-1">
-  <h1 class="text-xl md:text-2xl font-bold text-zinc-100 mb-6"><%= title %></h1>
+<main class="max-w-4xl mx-auto px-6 lg:px-12 py-8 flex-1">
+  <h1 class="text-2xl lg:text-3xl font-bold text-zinc-100 mb-8"><%= title %></h1>
 
   <% if (result) { %>
-    <div class="bg-emerald-900/30 border border-emerald-800 text-emerald-300 rounded px-4 py-3 mb-6 text-sm">
+    <div class="bg-emerald-900/30 border border-emerald-800 text-emerald-300 rounded-xl px-5 py-4 mb-8 text-base">
       <%= result.count %> tome<%= result.count !== 1 ? 's' : '' %> ajouté<%= result.count !== 1 ? 's' : '' %> avec succès.
     </div>
   <% } %>
 
-  <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 md:p-6">
-    <p class="text-sm text-zinc-400 mb-4">
+  <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 lg:p-8">
+    <p class="text-base text-zinc-400 mb-6">
       Ajoutez plusieurs tomes d'une série d'un coup. Indiquez les tomes manquants pour les marquer automatiquement.
     </p>
 
-    <form method="POST" action="/bulk-add" class="space-y-4">
+    <form method="POST" action="/bulk-add" class="space-y-6">
       <div>
-        <label class="block text-sm text-zinc-400 mb-1">Série</label>
+        <label class="block text-base text-zinc-400 mb-2">Série</label>
         <input type="text" name="serie" list="series-list" required
-               class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+               class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-base text-zinc-200 focus:outline-none focus:border-amber-600"
                placeholder="Ex: Astérix">
         <datalist id="series-list">
           <% for (const s of series) { %>
@@ -29,47 +29,47 @@
       </div>
 
       <div>
-        <label class="block text-sm text-zinc-400 mb-1">Préfixe du titre <span class="text-zinc-600">(optionnel)</span></label>
+        <label class="block text-base text-zinc-400 mb-2">Préfixe du titre <span class="text-zinc-600">(optionnel)</span></label>
         <input type="text" name="titre_prefix"
-               class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+               class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-base text-zinc-200 focus:outline-none focus:border-amber-600"
                placeholder="Laissez vide pour utiliser le nom de série">
-        <p class="text-xs text-zinc-600 mt-1">Résultat : "[Préfixe] - Tome N" ou "[Série] - Tome N"</p>
+        <p class="text-sm text-zinc-600 mt-2">Résultat : "[Préfixe] - Tome N" ou "[Série] - Tome N"</p>
       </div>
 
-      <div class="flex gap-4">
+      <div class="flex gap-5">
         <div class="flex-1">
-          <label class="block text-sm text-zinc-400 mb-1">Du tome</label>
+          <label class="block text-base text-zinc-400 mb-2">Du tome</label>
           <input type="number" name="from" value="1" min="0" required
-                 class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600">
+                 class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-base text-zinc-200 focus:outline-none focus:border-amber-600">
         </div>
         <div class="flex-1">
-          <label class="block text-sm text-zinc-400 mb-1">Au tome</label>
+          <label class="block text-base text-zinc-400 mb-2">Au tome</label>
           <input type="number" name="to" min="1" required
-                 class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+                 class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-base text-zinc-200 focus:outline-none focus:border-amber-600"
                  placeholder="12">
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-zinc-400 mb-1">Tomes manquants <span class="text-zinc-600">(séparés par des virgules)</span></label>
+        <label class="block text-base text-zinc-400 mb-2">Tomes manquants <span class="text-zinc-600">(séparés par des virgules)</span></label>
         <input type="text" name="missing"
-               class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+               class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-base text-zinc-200 focus:outline-none focus:border-amber-600"
                placeholder="Ex: 4, 9">
-        <p class="text-xs text-zinc-600 mt-1">Ces tomes seront marqués comme "Manquant" au lieu de "Possédé"</p>
+        <p class="text-sm text-zinc-600 mt-2">Ces tomes seront marqués comme "Manquant" au lieu de "Possédé"</p>
       </div>
 
-      <div class="flex gap-4">
+      <div class="flex gap-5">
         <div class="flex-1">
-          <label class="block text-sm text-zinc-400 mb-1">Statut des tomes possédés</label>
-          <select name="status_owned" class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600">
+          <label class="block text-base text-zinc-400 mb-2">Statut des tomes possédés</label>
+          <select name="status_owned" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-base text-zinc-200 focus:outline-none focus:border-amber-600">
             <% for (const s of statuses) { %>
               <option value="<%= s.value %>" <%= s.value === 'owned' ? 'selected' : '' %>><%= s.label %></option>
             <% } %>
           </select>
         </div>
         <div class="flex-1">
-          <label class="block text-sm text-zinc-400 mb-1">Statut des tomes manquants</label>
-          <select name="status_missing" class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600">
+          <label class="block text-base text-zinc-400 mb-2">Statut des tomes manquants</label>
+          <select name="status_missing" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-base text-zinc-200 focus:outline-none focus:border-amber-600">
             <% for (const s of statuses) { %>
               <option value="<%= s.value %>" <%= s.value === 'missing' ? 'selected' : '' %>><%= s.label %></option>
             <% } %>
@@ -78,9 +78,9 @@
       </div>
 
       <div>
-        <label class="block text-sm text-zinc-400 mb-1">Tags <span class="text-zinc-600">(séparés par des virgules)</span></label>
+        <label class="block text-base text-zinc-400 mb-2">Tags <span class="text-zinc-600">(séparés par des virgules)</span></label>
         <input type="text" name="tags" list="tags-list"
-               class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+               class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-base text-zinc-200 focus:outline-none focus:border-amber-600"
                placeholder="Ex: manga, shonen">
         <datalist id="tags-list">
           <% for (const t of tags) { %>
@@ -89,11 +89,11 @@
         </datalist>
       </div>
 
-      <div class="flex items-center gap-3 pt-2">
-        <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm transition-colors">
+      <div class="flex items-center gap-4 pt-4">
+        <button type="submit" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-base font-medium transition-colors">
           Ajouter les tomes
         </button>
-        <a href="/" class="text-sm text-zinc-500 hover:text-zinc-300">Annuler</a>
+        <a href="/" class="text-base text-zinc-500 hover:text-zinc-300">Annuler</a>
       </div>
     </form>
   </div>

@@ -143,6 +143,7 @@ app.get('/add', (req, res) => {
     series: store.getAllSeries(),
     tags: store.getAllTags(),
     statuses: STATUSES,
+    statusLabel,
     currentPage: 'add',
   });
 });
@@ -197,6 +198,7 @@ app.get('/edit/:id', (req, res) => {
     series: store.getAllSeries(),
     tags: store.getAllTags(),
     statuses: STATUSES,
+    statusLabel,
     currentPage: '',
   });
 });
@@ -240,6 +242,26 @@ app.post('/api/cover/upload/:id', uploadCover.single('cover'), (req, res) => {
   const coverPath = '/uploads/covers/' + req.file.filename;
   store.update(req.params.id, { cover_url: coverPath });
   res.json({ ok: true, cover_url: coverPath });
+});
+
+// Batch cover search — find covers for all books missing one
+app.post('/api/cover/batch-search', async (req, res) => {
+  const all = store.getAll();
+  const missing = all.filter(b => !b.cover_url);
+  const results = [];
+
+  for (const bd of missing) {
+    const url = await searchCover(bd.titre, bd.serie);
+    if (url) {
+      store.update(bd.id, { cover_url: url });
+      results.push({ id: bd.id, titre: bd.titre, serie: bd.serie, cover_url: url, found: true });
+    } else {
+      results.push({ id: bd.id, titre: bd.titre, serie: bd.serie, cover_url: null, found: false,
+        reason: `Aucun résultat Google Books / Open Library pour "${bd.serie} ${bd.titre}"` });
+    }
+  }
+
+  res.json({ ok: true, total: missing.length, found: results.filter(r => r.found).length, results });
 });
 
 app.post('/api/serie-note', (req, res) => {

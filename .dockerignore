@@ -9,4 +9,6 @@ uploads/*
 *.md
 Dockerfile
 docker-compose.yml
+docker-compose.prod.yml
 .dockerignore
+data/db.json

@@ -1,47 +1,48 @@
 <%- include('partials/head') %>
 <%- include('partials/nav') %>
 
-<main class="max-w-6xl mx-auto px-4 py-6 flex-1">
-  <h1 class="text-xl md:text-2xl font-bold text-zinc-100 mb-6"><%= title %></h1>
+<main class="mx-auto px-6 lg:px-12 py-8 flex-1">
+  <h1 class="text-2xl lg:text-3xl font-bold text-zinc-100 mb-8"><%= title %></h1>
 
   <!-- Key numbers -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 text-center">
-      <p class="text-2xl md:text-3xl font-bold text-zinc-100"><%= stats.total %></p>
-      <p class="text-xs text-zinc-500 mt-1">Total BDs</p>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-10">
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 lg:p-8 text-center">
+      <p class="text-4xl lg:text-5xl font-bold text-zinc-100"><%= stats.total %></p>
+      <p class="text-sm text-zinc-500 mt-2">Total BDs</p>
     </div>
-    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 text-center">
-      <p class="text-2xl md:text-3xl font-bold text-emerald-400"><%= stats.owned %></p>
-      <p class="text-xs text-zinc-500 mt-1">Possédées</p>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 lg:p-8 text-center">
+      <p class="text-4xl lg:text-5xl font-bold text-emerald-400"><%= stats.owned %></p>
+      <p class="text-sm text-zinc-500 mt-2">Possédées</p>
     </div>
-    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 text-center">
-      <p class="text-2xl md:text-3xl font-bold text-amber-400"><%= stats.wishlist %></p>
-      <p class="text-xs text-zinc-500 mt-1">Wishlist</p>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 lg:p-8 text-center">
+      <p class="text-4xl lg:text-5xl font-bold text-amber-400"><%= stats.wishlist %></p>
+      <p class="text-sm text-zinc-500 mt-2">Wishlist</p>
     </div>
-    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 text-center">
-      <p class="text-2xl md:text-3xl font-bold text-zinc-300"><%= stats.topSeries.length %></p>
-      <p class="text-xs text-zinc-500 mt-1">Séries</p>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 lg:p-8 text-center">
+      <p class="text-4xl lg:text-5xl font-bold text-zinc-300"><%= stats.topSeries.length %></p>
+      <p class="text-sm text-zinc-500 mt-2">Séries</p>
     </div>
   </div>
 
-  <div class="grid md:grid-cols-2 gap-6">
+  <!-- Main grid: 2 cols on desktop, full width -->
+  <div class="grid lg:grid-cols-2 gap-6 lg:gap-8">
     <!-- Status breakdown -->
-    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
-      <h2 class="text-sm font-medium text-zinc-300 mb-3">Répartition par statut</h2>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 lg:p-8">
+      <h2 class="text-base lg:text-lg font-medium text-zinc-200 mb-5">Répartition par statut</h2>
       <% if (stats.total === 0) { %>
-        <p class="text-xs text-zinc-500">Aucune donnée.</p>
+        <p class="text-sm text-zinc-500">Aucune donnée.</p>
       <% } else { %>
-        <div class="space-y-2">
+        <div class="space-y-4">
           <% const statusColors = { owned: 'bg-emerald-500', owned_no_hs: 'bg-emerald-600', missing: 'bg-red-500', in_progress: 'bg-amber-500', not_owned: 'bg-zinc-600' }; %>
           <% for (const s of statuses) { %>
             <% const count = stats.byStatus[s.value] || 0; %>
             <% const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0; %>
-            <div class="flex items-center gap-3">
-              <span class="text-xs text-zinc-400 w-28 truncate"><%= s.label %></span>
-              <div class="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
-                <div class="h-full rounded-full <%= statusColors[s.value] || 'bg-zinc-600' %>" style="width: <%= pct %>%"></div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-zinc-400 w-36 shrink-0"><%= s.label %></span>
+              <div class="flex-1 h-3 bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all <%= statusColors[s.value] || 'bg-zinc-600' %>" style="width: <%= pct %>%"></div>
               </div>
-              <span class="text-xs text-zinc-500 w-12 text-right"><%= count %> (<%= pct %>%)</span>
+              <span class="text-sm text-zinc-400 w-20 text-right shrink-0"><%= count %> (<%= pct %>%)</span>
             </div>
           <% } %>
         </div>
@@ -49,20 +50,20 @@
     </div>
 
     <!-- Top series -->
-    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
-      <h2 class="text-sm font-medium text-zinc-300 mb-3">Top séries</h2>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 lg:p-8">
+      <h2 class="text-base lg:text-lg font-medium text-zinc-200 mb-5">Top séries</h2>
       <% if (stats.topSeries.length === 0) { %>
-        <p class="text-xs text-zinc-500">Aucune série.</p>
+        <p class="text-sm text-zinc-500">Aucune série.</p>
       <% } else { %>
-        <div class="space-y-2">
+        <div class="space-y-4">
           <% for (const s of stats.topSeries) { %>
-            <div class="flex items-center gap-3">
-              <span class="text-xs text-zinc-300 flex-1 truncate"><%= s.name %></span>
-              <div class="w-20 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                <div class="h-full rounded-full <%= s.pct === 100 ? 'bg-emerald-500' : s.pct > 50 ? 'bg-amber-500' : 'bg-red-500' %>"
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-zinc-300 flex-1 truncate"><%= s.name %></span>
+              <div class="w-32 lg:w-48 h-2.5 bg-zinc-800 rounded-full overflow-hidden shrink-0">
+                <div class="h-full rounded-full transition-all <%= s.pct === 100 ? 'bg-emerald-500' : s.pct > 50 ? 'bg-amber-500' : 'bg-red-500' %>"
                      style="width: <%= s.pct %>%"></div>
               </div>
-              <span class="text-xs text-zinc-500 w-16 text-right"><%= s.owned %>/<%= s.total %></span>
+              <span class="text-sm text-zinc-400 w-16 text-right shrink-0"><%= s.owned %>/<%= s.total %></span>
             </div>
           <% } %>
         </div>
@@ -70,39 +71,41 @@
     </div>
 
     <!-- Tags -->
-    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
-      <h2 class="text-sm font-medium text-zinc-300 mb-3">Tags</h2>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 lg:p-8">
+      <h2 class="text-base lg:text-lg font-medium text-zinc-200 mb-5">Tags</h2>
       <% const tagEntries = Object.entries(stats.byTag); %>
       <% if (tagEntries.length === 0) { %>
-        <p class="text-xs text-zinc-500">Aucun tag.</p>
+        <p class="text-sm text-zinc-500">Aucun tag.</p>
       <% } else { %>
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-3">
           <% for (const [tag, count] of tagEntries.sort((a, b) => b[1] - a[1])) { %>
-            <span class="px-2 py-1 bg-zinc-800 rounded text-xs text-zinc-300"><%= tag %> <span class="text-zinc-500">(<%= count %>)</span></span>
+            <span class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm text-zinc-300"><%= tag %> <span class="text-zinc-500">(<%= count %>)</span></span>
           <% } %>
         </div>
       <% } %>
     </div>
 
     <!-- Recently added -->
-    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
-      <h2 class="text-sm font-medium text-zinc-300 mb-3">Derniers ajouts</h2>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 lg:p-8">
+      <h2 class="text-base lg:text-lg font-medium text-zinc-200 mb-5">Derniers ajouts</h2>
       <% if (stats.recent.length === 0) { %>
-        <p class="text-xs text-zinc-500">Aucun ajout.</p>
+        <p class="text-sm text-zinc-500">Aucun ajout.</p>
       <% } else { %>
-        <div class="space-y-2">
+        <div class="space-y-3">
           <% for (const bd of stats.recent) { %>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors">
               <% if (bd.cover_url) { %>
-                <img src="<%= bd.cover_url %>" alt="" class="w-6 h-8 object-cover rounded" loading="lazy">
+                <img src="<%= bd.cover_url %>" alt="" class="w-10 h-14 object-cover rounded shadow" loading="lazy">
               <% } else { %>
-                <div class="w-6 h-8 bg-zinc-800 rounded"></div>
+                <div class="w-10 h-14 bg-zinc-800 rounded flex items-center justify-center">
+                  <svg class="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
               <% } %>
               <div class="flex-1 min-w-0">
-                <p class="text-xs text-zinc-300 truncate"><%= bd.titre %></p>
-                <p class="text-xs text-zinc-500"><%= bd.serie %></p>
+                <p class="text-sm text-zinc-200 truncate"><%= bd.titre %></p>
+                <p class="text-xs text-zinc-500 mt-0.5"><%= bd.serie %></p>
               </div>
-              <span class="text-xs text-zinc-600"><%= new Date(bd.created_at).toLocaleDateString('fr-FR') %></span>
+              <span class="text-xs text-zinc-600 shrink-0"><%= new Date(bd.created_at).toLocaleDateString('fr-FR') %></span>
             </div>
           <% } %>
         </div>

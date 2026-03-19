@@ -220,14 +220,80 @@ document.addEventListener('DOMContentLoaded', () => {
     deleteId = null;
   });
 
+  // --- Series page: card grid + detail view ---
+  const seriesGrid = document.getElementById('series-grid');
+  const serieDetail = document.getElementById('serie-detail');
+  const serieDetailTitle = document.getElementById('serie-detail-title');
+  const serieDetailBack = document.getElementById('serie-detail-back');
+
+  document.querySelectorAll('.serie-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Don't navigate if clicking inside a select or link
+      if (e.target.closest('select, a, button, textarea')) return;
+      const serieName = card.dataset.serieName;
+      showSerieDetail(serieName);
+    });
+  });
+
+  function showSerieDetail(serieName) {
+    if (!seriesGrid || !serieDetail) return;
+    seriesGrid.classList.add('hidden');
+    document.getElementById('search-serie')?.parentElement?.classList.add('hidden');
+    serieDetail.classList.remove('hidden');
+    serieDetailTitle.textContent = serieName;
+
+    // Show the right content
+    document.querySelectorAll('.serie-detail-content').forEach(el => {
+      el.classList.toggle('hidden', el.dataset.serieName !== serieName);
+    });
+  }
+
+  serieDetailBack?.addEventListener('click', () => {
+    serieDetail.classList.add('hidden');
+    seriesGrid.classList.remove('hidden');
+    document.getElementById('search-serie')?.parentElement?.classList.remove('hidden');
+  });
+
   // --- Series page search with debounce ---
   const searchSerie = document.getElementById('search-serie');
   searchSerie?.addEventListener('input', debounce(() => {
     const query = searchSerie.value.toLowerCase();
-    document.querySelectorAll('.serie-block').forEach(block => {
-      block.style.display = !query || block.dataset.serie.includes(query) ? '' : 'none';
+    document.querySelectorAll('.serie-card').forEach(card => {
+      card.style.display = !query || card.dataset.serie.includes(query) ? '' : 'none';
     });
   }, 200));
+
+  // --- Batch cover search ---
+  const btnBatchCovers = document.getElementById('btn-batch-covers');
+  const batchCoverStatus = document.getElementById('batch-cover-status');
+
+  btnBatchCovers?.addEventListener('click', async () => {
+    btnBatchCovers.disabled = true;
+    btnBatchCovers.textContent = 'Recherche en cours...';
+    batchCoverStatus.classList.remove('hidden');
+    batchCoverStatus.textContent = '';
+
+    try {
+      const res = await fetch('/api/cover/batch-search', { method: 'POST' });
+      const data = await res.json();
+      if (data.ok) {
+        const notFound = data.results.filter(r => !r.found);
+        let msg = `${data.found}/${data.total} couvertures trouvées.`;
+        if (notFound.length > 0) {
+          msg += ` Non trouvées: ${notFound.map(r => r.serie + ' - ' + r.titre).join(', ')}`;
+        }
+        batchCoverStatus.textContent = msg;
+        if (data.found > 0) {
+          setTimeout(() => location.reload(), 2000);
+        }
+      }
+    } catch (err) {
+      batchCoverStatus.textContent = 'Erreur: ' + err.message;
+    } finally {
+      btnBatchCovers.disabled = false;
+      btnBatchCovers.textContent = 'Chercher toutes les couvertures';
+    }
+  });
 
   // --- Serie notes (auto-save) ---
   document.querySelectorAll('.serie-note-input').forEach(textarea => {
