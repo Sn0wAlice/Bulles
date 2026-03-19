@@ -29,8 +29,7 @@ COPY --from=build /app/public/css/style.css ./public/css/style.css
 # Create directories for volumes
 RUN mkdir -p /app/data /app/uploads /app/public/uploads/covers
 
-# Default db.json if volume is empty (handled by entrypoint)
-COPY data/db.json /app/data/db.json.default
+# db.json is auto-created by the migrator on first run — no COPY needed
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh

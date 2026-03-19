@@ -57,11 +57,13 @@ docker compose -f docker-compose.prod.yml up -d
 
 L'image utilise un build multi-stage (Tailwind compilé au build, Alpine + deps prod uniquement en runtime).
 
+> **Note :** `data/db.json` est gitignored et créé automatiquement au premier lancement par le système de migration. Pas besoin de le fournir — l'app s'initialise toute seule.
+
 ### Volumes
 
 | Montage | Contenu |
 |---|---|
-| `./data` | Base de données (`db.json`) — persistée sur l'hôte |
+| `./data` | Base de données (`db.json`) — persistée sur l'hôte, auto-créée au 1er run |
 | `./uploads` | CSV temporaires d'import |
 | `covers` (named) | Couvertures uploadées |
 

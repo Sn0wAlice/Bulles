@@ -1,10 +1,9 @@
 #!/bin/sh
 set -e
 
-# Initialize db.json if it doesn't exist (first run with empty volume)
-if [ ! -f /app/data/db.json ]; then
-  echo "Initializing database..."
-  cp /app/data/db.json.default /app/data/db.json
-fi
+# Ensure data directory exists (volume mount may create it as root)
+mkdir -p /app/data /app/uploads /app/public/uploads/covers
+
+# db.json is auto-created by the Node migrator on first run — nothing to do here
 
 exec "$@"
