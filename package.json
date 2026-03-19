@@ -1,0 +1,35 @@
+{
+  "name": "bulles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./src/input.css -o ./public/css/style.css --minify",
+    "dev:css": "npx tailwindcss -i ./src/input.css -o ./public/css/style.css --watch",
+    "start": "node app.js",
+    "dev": "npm run build:css && node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sn0wAlice/Bulles.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Sn0wAlice/Bulles/issues"
+  },
+  "homepage": "https://github.com/Sn0wAlice/Bulles#readme",
+  "dependencies": {
+    "compression": "^1.8.1",
+    "csv-parse": "^6.2.0",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

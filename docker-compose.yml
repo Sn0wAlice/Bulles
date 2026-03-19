@@ -1,0 +1,17 @@
+services:
+  bulles:
+    build: .
+    container_name: bulles
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data          # Base de données JSON
+      - ./uploads:/app/uploads    # CSV imports temporaires
+      - covers:/app/public/uploads/covers  # Couvertures uploadées
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+
+volumes:
+  covers:

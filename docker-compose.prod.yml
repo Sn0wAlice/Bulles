@@ -1,0 +1,35 @@
+services:
+  bulles:
+    image: ghcr.io/sn0walice/bulles:latest
+    container_name: bulles
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - bulles-data:/app/data
+      - bulles-uploads:/app/uploads
+      - bulles-covers:/app/public/uploads/covers
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: "0.5"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  bulles-data:
+  bulles-uploads:
+  bulles-covers:

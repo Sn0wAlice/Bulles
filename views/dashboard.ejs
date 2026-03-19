@@ -1,0 +1,114 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<main class="max-w-6xl mx-auto px-4 py-6 flex-1">
+  <h1 class="text-xl md:text-2xl font-bold text-zinc-100 mb-6"><%= title %></h1>
+
+  <!-- Key numbers -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 text-center">
+      <p class="text-2xl md:text-3xl font-bold text-zinc-100"><%= stats.total %></p>
+      <p class="text-xs text-zinc-500 mt-1">Total BDs</p>
+    </div>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 text-center">
+      <p class="text-2xl md:text-3xl font-bold text-emerald-400"><%= stats.owned %></p>
+      <p class="text-xs text-zinc-500 mt-1">Possédées</p>
+    </div>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 text-center">
+      <p class="text-2xl md:text-3xl font-bold text-amber-400"><%= stats.wishlist %></p>
+      <p class="text-xs text-zinc-500 mt-1">Wishlist</p>
+    </div>
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 text-center">
+      <p class="text-2xl md:text-3xl font-bold text-zinc-300"><%= stats.topSeries.length %></p>
+      <p class="text-xs text-zinc-500 mt-1">Séries</p>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <!-- Status breakdown -->
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
+      <h2 class="text-sm font-medium text-zinc-300 mb-3">Répartition par statut</h2>
+      <% if (stats.total === 0) { %>
+        <p class="text-xs text-zinc-500">Aucune donnée.</p>
+      <% } else { %>
+        <div class="space-y-2">
+          <% const statusColors = { owned: 'bg-emerald-500', owned_no_hs: 'bg-emerald-600', missing: 'bg-red-500', in_progress: 'bg-amber-500', not_owned: 'bg-zinc-600' }; %>
+          <% for (const s of statuses) { %>
+            <% const count = stats.byStatus[s.value] || 0; %>
+            <% const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0; %>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-zinc-400 w-28 truncate"><%= s.label %></span>
+              <div class="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full <%= statusColors[s.value] || 'bg-zinc-600' %>" style="width: <%= pct %>%"></div>
+              </div>
+              <span class="text-xs text-zinc-500 w-12 text-right"><%= count %> (<%= pct %>%)</span>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Top series -->
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
+      <h2 class="text-sm font-medium text-zinc-300 mb-3">Top séries</h2>
+      <% if (stats.topSeries.length === 0) { %>
+        <p class="text-xs text-zinc-500">Aucune série.</p>
+      <% } else { %>
+        <div class="space-y-2">
+          <% for (const s of stats.topSeries) { %>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-zinc-300 flex-1 truncate"><%= s.name %></span>
+              <div class="w-20 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full <%= s.pct === 100 ? 'bg-emerald-500' : s.pct > 50 ? 'bg-amber-500' : 'bg-red-500' %>"
+                     style="width: <%= s.pct %>%"></div>
+              </div>
+              <span class="text-xs text-zinc-500 w-16 text-right"><%= s.owned %>/<%= s.total %></span>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Tags -->
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
+      <h2 class="text-sm font-medium text-zinc-300 mb-3">Tags</h2>
+      <% const tagEntries = Object.entries(stats.byTag); %>
+      <% if (tagEntries.length === 0) { %>
+        <p class="text-xs text-zinc-500">Aucun tag.</p>
+      <% } else { %>
+        <div class="flex flex-wrap gap-2">
+          <% for (const [tag, count] of tagEntries.sort((a, b) => b[1] - a[1])) { %>
+            <span class="px-2 py-1 bg-zinc-800 rounded text-xs text-zinc-300"><%= tag %> <span class="text-zinc-500">(<%= count %>)</span></span>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Recently added -->
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
+      <h2 class="text-sm font-medium text-zinc-300 mb-3">Derniers ajouts</h2>
+      <% if (stats.recent.length === 0) { %>
+        <p class="text-xs text-zinc-500">Aucun ajout.</p>
+      <% } else { %>
+        <div class="space-y-2">
+          <% for (const bd of stats.recent) { %>
+            <div class="flex items-center gap-2">
+              <% if (bd.cover_url) { %>
+                <img src="<%= bd.cover_url %>" alt="" class="w-6 h-8 object-cover rounded" loading="lazy">
+              <% } else { %>
+                <div class="w-6 h-8 bg-zinc-800 rounded"></div>
+              <% } %>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-zinc-300 truncate"><%= bd.titre %></p>
+                <p class="text-xs text-zinc-500"><%= bd.serie %></p>
+              </div>
+              <span class="text-xs text-zinc-600"><%= new Date(bd.created_at).toLocaleDateString('fr-FR') %></span>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/foot') %>

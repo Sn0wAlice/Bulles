@@ -1,0 +1,54 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<main class="max-w-2xl mx-auto px-4 py-6 flex-1">
+  <h1 class="text-xl md:text-2xl font-bold text-zinc-100 mb-6"><%= title %></h1>
+
+  <% if (result) { %>
+    <% if (result.error) { %>
+      <div class="bg-red-900/30 border border-red-800 text-red-300 rounded px-4 py-3 mb-6 text-sm">
+        <%= result.error %>
+      </div>
+    <% } else { %>
+      <div class="bg-emerald-900/30 border border-emerald-800 text-emerald-300 rounded px-4 py-3 mb-6 text-sm">
+        <%= result.count %> BD<%= result.count !== 1 ? 's' : '' %> importée<%= result.count !== 1 ? 's' : '' %> avec succès.
+      </div>
+    <% } %>
+  <% } %>
+
+  <!-- Import -->
+  <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 md:p-6 mb-6">
+    <h2 class="text-sm font-medium text-zinc-300 mb-3">Importer depuis Notion</h2>
+    <p class="text-sm text-zinc-400 mb-4">
+      Colonnes attendues : <code class="text-zinc-300">Name</code>, <code class="text-zinc-300">Titre</code>,
+      <code class="text-zinc-300">Numéro</code>, <code class="text-zinc-300">Status</code>,
+      <code class="text-zinc-300">Commentaire</code>, <code class="text-zinc-300">Web traking</code>.
+    </p>
+
+    <form method="POST" action="/import" enctype="multipart/form-data" class="space-y-4">
+      <div>
+        <input type="file" name="csvfile" accept=".csv"
+               class="text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-zinc-800 file:text-zinc-300 hover:file:bg-zinc-700 file:cursor-pointer file:transition-colors">
+      </div>
+      <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm transition-colors">
+        Importer
+      </button>
+    </form>
+  </div>
+
+  <!-- Export -->
+  <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 md:p-6">
+    <h2 class="text-sm font-medium text-zinc-300 mb-3">Exporter ma collection</h2>
+    <p class="text-sm text-zinc-400 mb-4">Téléchargez votre collection complète pour backup ou migration.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="/export/csv" class="px-5 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-sm transition-colors">
+        Exporter CSV
+      </a>
+      <a href="/export/json" class="px-5 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-sm transition-colors">
+        Exporter JSON
+      </a>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/foot') %>

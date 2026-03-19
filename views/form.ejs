@@ -1,0 +1,136 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<main class="max-w-2xl mx-auto px-4 py-6 flex-1">
+  <h1 class="text-xl md:text-2xl font-bold text-zinc-100 mb-6"><%= title %></h1>
+
+  <form method="POST" action="<%= bd ? '/edit/' + bd.id : '/add' %>" class="space-y-5" id="bd-form">
+    <div>
+      <label class="block text-sm text-zinc-400 mb-1">Série</label>
+      <input type="text" name="serie" id="input-serie" list="series-list" value="<%= bd ? bd.serie : '' %>"
+             class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+             placeholder="Ex: Astérix">
+      <datalist id="series-list">
+        <% for (const s of series) { %>
+          <option value="<%= s %>">
+        <% } %>
+      </datalist>
+    </div>
+
+    <div>
+      <label class="block text-sm text-zinc-400 mb-1">Titre</label>
+      <input type="text" name="titre" id="input-titre" value="<%= bd ? bd.titre : '' %>" required
+             class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+             placeholder="Ex: Astérix le Gaulois">
+    </div>
+
+    <div class="flex gap-4">
+      <div class="flex-1">
+        <label class="block text-sm text-zinc-400 mb-1">Numéro</label>
+        <input type="number" name="numero" value="<%= bd && bd.numero != null ? bd.numero : '' %>"
+               class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+               placeholder="1">
+      </div>
+      <div class="flex-1">
+        <label class="block text-sm text-zinc-400 mb-1">Statut</label>
+        <select name="status"
+                class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600">
+          <% for (const s of statuses) { %>
+            <option value="<%= s.value %>" <%= (bd && bd.status === s.value) ? 'selected' : (!bd && s.value === 'owned') ? 'selected' : '' %>><%= s.label %></option>
+          <% } %>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div>
+      <label class="block text-sm text-zinc-400 mb-1">Tags <span class="text-zinc-600">(séparés par des virgules)</span></label>
+      <input type="text" name="tags" value="<%= bd && bd.tags ? bd.tags.join(', ') : '' %>"
+             list="tags-list"
+             class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+             placeholder="Ex: manga, shonen, dédicacé">
+      <datalist id="tags-list">
+        <% for (const t of tags) { %>
+          <option value="<%= t %>">
+        <% } %>
+      </datalist>
+    </div>
+
+    <!-- Cover section -->
+    <div>
+      <label class="block text-sm text-zinc-400 mb-2">Couverture</label>
+      <div class="flex gap-4 items-start">
+        <div id="cover-preview" class="flex-shrink-0">
+          <% if (bd && bd.cover_url) { %>
+            <img src="<%= bd.cover_url %>" alt="" class="w-20 h-28 object-cover rounded shadow">
+          <% } else { %>
+            <div class="w-20 h-28 bg-zinc-800 rounded flex items-center justify-center">
+              <svg class="w-8 h-8 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+          <% } %>
+        </div>
+        <div class="flex-1 space-y-2">
+          <input type="hidden" name="cover_url" id="input-cover-url" value="<%= bd ? (bd.cover_url || '') : '' %>">
+          <button type="button" id="btn-search-cover"
+                  class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-xs transition-colors">
+            Rechercher automatiquement
+          </button>
+          <span id="cover-loading" class="text-xs text-zinc-500 hidden ml-2">Recherche...</span>
+          <% if (bd) { %>
+            <div class="mt-1">
+              <label class="text-xs text-zinc-500 cursor-pointer hover:text-zinc-400">
+                <input type="file" id="cover-upload-file" accept=".jpg,.jpeg,.png,.webp,.gif" class="hidden" data-id="<%= bd.id %>">
+                Ou uploader une image
+              </label>
+            </div>
+          <% } %>
+          <div>
+            <input type="url" id="input-cover-url-manual" placeholder="Ou coller une URL d'image..."
+                   value="<%= bd ? (bd.cover_url || '') : '' %>"
+                   class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-amber-600 mt-1">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm text-zinc-400 mb-1">Commentaire</label>
+      <textarea name="commentaire" rows="2"
+                class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600 resize-y"
+                placeholder="Notes..."><%= bd ? (bd.commentaire || '') : '' %></textarea>
+    </div>
+
+    <div>
+      <label class="block text-sm text-zinc-400 mb-1">Lien suivi web</label>
+      <input type="url" name="web_tracking" value="<%= bd ? (bd.web_tracking || '') : '' %>"
+             class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-600"
+             placeholder="https://...">
+    </div>
+
+    <!-- Status history (edit mode) -->
+    <% if (bd && bd.status_history && bd.status_history.length > 0) { %>
+      <div>
+        <label class="block text-sm text-zinc-400 mb-2">Historique des statuts</label>
+        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-3">
+          <div class="space-y-1">
+            <% for (const h of bd.status_history.slice().reverse()) { %>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-zinc-300"><%= statusLabel(h.status) %></span>
+                <span class="text-zinc-600"><%= new Date(h.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="flex items-center gap-3 pt-2">
+      <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm transition-colors">
+        <%= bd ? 'Enregistrer' : 'Ajouter' %>
+      </button>
+      <a href="/" class="text-sm text-zinc-500 hover:text-zinc-300">Annuler</a>
+    </div>
+  </form>
+</main>
+
+<%- include('partials/foot') %>

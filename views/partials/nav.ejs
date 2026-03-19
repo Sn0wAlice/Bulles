@@ -1,0 +1,67 @@
+<nav class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
+    <a href="/dashboard" class="text-lg font-semibold tracking-tight text-zinc-100">Bulles</a>
+
+    <!-- Desktop nav -->
+    <div class="hidden md:flex items-center gap-1">
+      <% const links = [
+        { href: '/dashboard', label: 'Dashboard', page: 'dashboard' },
+        { href: '/', label: 'Collection', page: 'collection', count: navCounts.collection },
+        { href: '/wishlist', label: 'Wishlist', page: 'wishlist', count: navCounts.wishlist },
+        { href: '/series', label: 'Séries', page: 'series' },
+        { href: '/all', label: 'Tout', page: 'all', count: navCounts.total },
+        { href: '/import', label: 'Import', page: 'import' },
+      ]; %>
+      <% for (const link of links) { %>
+        <a href="<%= link.href %>"
+           class="px-2.5 py-1.5 rounded text-sm transition-colors flex items-center gap-1.5
+                  <%= currentPage === link.page ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800' %>">
+          <%= link.label %>
+          <% if (link.count != null && link.count > 0) { %>
+            <span class="text-xs bg-zinc-800 px-1.5 py-0.5 rounded-full text-zinc-500"><%= link.count %></span>
+          <% } %>
+        </a>
+      <% } %>
+      <div class="ml-2 flex items-center gap-1">
+        <a href="/add" class="px-3 py-1.5 rounded text-sm bg-amber-600 hover:bg-amber-500 text-white transition-colors">+ BD</a>
+        <a href="/bulk-add" class="px-3 py-1.5 rounded text-sm bg-zinc-700 hover:bg-zinc-600 text-zinc-200 transition-colors">+ Série</a>
+      </div>
+    </div>
+
+    <!-- Mobile: add button + hamburger -->
+    <div class="flex md:hidden items-center gap-2">
+      <a href="/add" class="px-3 py-1.5 rounded text-sm bg-amber-600 hover:bg-amber-500 text-white transition-colors">+</a>
+      <button id="menu-toggle" class="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 transition-colors" aria-label="Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path id="menu-icon-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          <path id="menu-icon-close" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" class="hidden"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-800 bg-zinc-900/95 backdrop-blur">
+    <div class="px-4 py-3 flex flex-col gap-1">
+      <% const mobileLinks = [
+        { href: '/dashboard', label: 'Dashboard', page: 'dashboard' },
+        { href: '/', label: 'Collection', page: 'collection', count: navCounts.collection },
+        { href: '/wishlist', label: 'Wishlist', page: 'wishlist', count: navCounts.wishlist },
+        { href: '/series', label: 'Séries', page: 'series' },
+        { href: '/all', label: 'Tout', page: 'all', count: navCounts.total },
+        { href: '/bulk-add', label: 'Ajout en série', page: 'bulk-add' },
+        { href: '/import', label: 'Import / Export', page: 'import' },
+      ]; %>
+      <% for (const link of mobileLinks) { %>
+        <a href="<%= link.href %>"
+           class="px-3 py-2.5 rounded text-sm transition-colors flex items-center justify-between
+                  <%= currentPage === link.page ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800' %>">
+          <span><%= link.label %></span>
+          <% if (link.count != null && link.count > 0) { %>
+            <span class="text-xs bg-zinc-800 px-1.5 py-0.5 rounded-full text-zinc-500"><%= link.count %></span>
+          <% } %>
+        </a>
+      <% } %>
+    </div>
+  </div>
+</nav>
